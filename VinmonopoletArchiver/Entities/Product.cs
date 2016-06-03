@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VinmonopoletArchiver.Entities
 {
-    internal class Product
+    public class Product
     {
         public long ID { get; set; } // varenummer
         public DateTime TimeAcquired { get; set; } = DateTime.Now;// tid_hentet

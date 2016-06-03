@@ -103,6 +103,18 @@ namespace VinmonopoletArchiver.Database
             return (int) _command.ExecuteScalar();
         }
 
+        public DataTable GetDataTable()
+        {
+            DataTable table = new DataTable();
+            Connect();
+
+            using (MySqlDataAdapter dataAdapter = new MySqlDataAdapter(_command))
+            {
+                dataAdapter.Fill(table);
+            }
+            return table;
+        }
+
         public void Dispose()
         {
             _command.Dispose();

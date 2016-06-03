@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ using VinmonopoletArchiver.Entities;
 
 namespace VinmonopoletArchiver
 {
-    internal class Program
+    public class Program
     {
         private const string PRODUCTS_URL = "http://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv";
         private const string STORES_URL = "http://www.vinmonopolet.no/medias/sys_master/locations/locations/h3c/h4a/8834253946910.csv";
@@ -98,38 +99,29 @@ namespace VinmonopoletArchiver
         private static void StartImport(IList<Product> products, DateTime time)
         {
             // First check if already imported
-            using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
+            if (CheckChangeRegistered(time))
             {
-                command.CommandText = "SELECT COUNT(1) FROM change WHERE time = @time";
-                command.AddParameterWithValue("time", time);
-                bool exists = command.GetExists();
-
-                if (exists)
-                {
-                    // TODO: Log
-                    return;
-                }
+                // TODO: Log
+                return;
             }
 
             // Insert the change itself
-            int changeID;
-            using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
+            int changeID = CreateChange(time);
+            if (changeID < 1)
             {
-                command.CommandText = "INSERT INTO change(time,start_import) VALUES(@time,NOW())";
-                command.AddParameterWithValue("time", time);
-                changeID = (int)command.ExecuteInsert();
-
-                if (changeID < 1)
-                {
-                    // TODO: Log
-                    return;
-                }
+                // TODO: Log
+                return;
             }
 
             // Process and insert all products
             InsertProductsIntoDb(products);
 
             // Mark the change as completed
+            SetChangeEndTime(changeID);
+        }
+
+        private static bool SetChangeEndTime(int changeID)
+        {
             using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
             {
                 command.CommandText = "UPDATE change SET end_import = NOW() WHERE change_id = @id";
@@ -139,22 +131,84 @@ namespace VinmonopoletArchiver
                 if (affectedRows != 1)
                 {
                     // TODO: Log
-                    return;
+                    return false;
                 }
+                return true;
             }
         }
 
-        private static void InsertProductsIntoDb(IList<Product> products)
+        private static int CreateChange(DateTime time)
         {
-            QueryChunk insertQuery = new QueryChunk("INSERT INTO produkt_log VALUES");
+            int changeID;
+            using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
+            {
+                command.CommandText = "INSERT INTO change(time,start_import) VALUES(@time,NOW())";
+                command.AddParameterWithValue("time", time);
+                changeID = (int) command.ExecuteInsert();
+            }
+            return changeID;
+        }
+
+        private static bool CheckChangeRegistered(DateTime time)
+        {
+            using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
+            {
+                command.CommandText = "SELECT COUNT(1) FROM change WHERE time = @time";
+                command.AddParameterWithValue("time", time);
+                return command.GetExists();
+            }
+        }
+
+        public static IEnumerable<Product> GetNewProducts(IList<Product> products)
+        {
+            List<long> existingIDs = new List<long>();
+            using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
+            {
+                command.CommandText = "SELECT varenummer FROM product WHERE FIND_IN_SET(varenummer,@ids) != 0";
+                command.AddParameterWithValue("ids", string.Join(",", products.Select(p => p.ID).ToArray()));
+                DataTable table = command.GetDataTable();
+
+                foreach (DataRow row in table.Rows)
+                {
+                    existingIDs.Add((long)row[0]);
+                }
+            }
+            return products.Where(p => !existingIDs.Contains(p.ID));
+        }
+
+        private static void ProcessProducts(List<Product> products)
+        {
+            // TODO: Redo in following way:
+            // 1. Retrieve and map all products from db
+            // 2. Compare with the ones mapped from csv
+            // 3a. REPLACE INTO everything?
+            // 3b. INSERT new, UPDATE old ones
+            // 4. For existing products, INSERT into product_change
+            List<Product> newProducts = GetNewProducts(products).ToList();
+            int insertCount = InsertProductsIntoDb(newProducts);
+            if (insertCount != newProducts.Count)
+            {
+                // TODO: Log
+                return;
+            }
+
+            // Remove the new product so we don't run an update query later
+            products.RemoveAll(p => newProducts.Contains(p));
+
+
+        }
+
+        private static int InsertProductsIntoDb(IList<Product> products)
+        {
+            QueryChunk insertQuery = new QueryChunk("INSERT INTO product VALUES");
 
             using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
             {
-                int i = 0;
-                foreach (Product product in products)
+                for (int i = 0; i < products.Count; i++)
                 {
+                    Product product = products[i];
                     product.TimeAcquired = products[0].TimeAcquired; // Time only specified for first item
-                    insertQuery.AddQuery(string.Format("(@id{0},@time{0},@name{0},@volume{0},@price{0},@type{0},@selection{0},@category{0},@fylde{0},@freshness{0}" +
+                    insertQuery.AddQuery(string.Format("(@id{0},@time{0},@time{0},@name{0},@volume{0},@price{0},@type{0},@selection{0},@category{0},@fylde{0},@freshness{0}" +
                                                        ",@garvestoffer{0},@bitterness{0},@sweetness{0},@color{0},@smell{0},@taste{0},@fw1{0},@fw2{0},@fw3{0}" +
                                                        ",@country{0},@district{0},@subdistrict{0},@year{0},@rawmaterial{0},@method{0},@alcohol{0},@sugar{0},@acid{0}" +
                                                        ",@lagringsgrad{0},@producer{0},@grossist{0},@distributor{0},@emballasjetype{0},@korktype{0})", i));
@@ -193,10 +247,9 @@ namespace VinmonopoletArchiver
                     insertQuery.AddParameter($"distributor{i}", product.Distributor);
                     insertQuery.AddParameter($"emballasjetype{i}", product.Emballasjetype);
                     insertQuery.AddParameter($"korktype{i}", product.Korktype);
-                    i++;
                 }
 
-                int affectedRows = insertQuery.Execute(command);
+                return insertQuery.Execute(command);
             }
         }
     }
