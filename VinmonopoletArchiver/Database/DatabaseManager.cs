@@ -19,7 +19,8 @@ namespace VinmonopoletArchiver.Database
                 Port = 3306,
                 UserID = "root",
                 Password = "",
-                Database = "pol"
+                Database = "pol",
+                ConvertZeroDateTime = true,
             }.GetConnectionString(true);
         }
 

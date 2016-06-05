@@ -54,6 +54,7 @@
     <Compile Include="Database\DatabaseManager.cs" />
     <Compile Include="Database\MySqlCommandWrapper.cs" />
     <Compile Include="Database\Util\EndingType.cs" />
+    <Compile Include="Database\Util\DatabaseMappingUtil.cs" />
     <Compile Include="Database\Util\QueryChunk.cs" />
     <Compile Include="Database\Util\SmallChunk.cs" />
     <Compile Include="Entities\DoubleOrUnknownConverter.cs" />

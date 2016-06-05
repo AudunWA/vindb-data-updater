@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VinmonopoletArchiver.Entities
 {
-    internal enum ProductField
+    public enum ProductField
     {
         ID, // varenummer
         TimeAcquired, // tid_hentet

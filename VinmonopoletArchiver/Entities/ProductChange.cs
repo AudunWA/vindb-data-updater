@@ -9,12 +9,21 @@ namespace VinmonopoletArchiver.Entities
     /// <summary>
     /// Represents a change of a product field.
     /// </summary>
-    internal class ProductChange
+    public class ProductChange
     {
-        public int ProductID { get; set; }
-        public string ChangedField { get; set; }
+        public long ProductID { get; set; }
+        public ProductField ChangedField { get; set; }
         public DateTime ChangeTime { get; set; }
         public string OldValue { get; set; }
         public string NewValue { get; set; }
+
+        public ProductChange(long productID, ProductField changedField, DateTime changeTime, string oldValue, string newValue)
+        {
+            ProductID = productID;
+            ChangedField = changedField;
+            ChangeTime = changeTime;
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
     }
 }

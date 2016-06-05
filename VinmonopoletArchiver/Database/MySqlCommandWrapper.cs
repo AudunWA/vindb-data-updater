@@ -94,7 +94,7 @@ namespace VinmonopoletArchiver.Database
         public bool GetExists()
         {
             Connect();
-            return (int) _command.ExecuteScalar() != 0;
+            return (long) _command.ExecuteScalar() != 0;
         }
 
         public int GetIntegerValue()

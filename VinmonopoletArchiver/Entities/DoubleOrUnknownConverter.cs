@@ -15,11 +15,11 @@ namespace VinmonopoletArchiver.Entities
             double value;
             double? test = null;
 
-            // MySQL doesn't seem to support NaN, use null instead
-            //if(double.TryParse(text, out value))
-            //    test = value;
-            //return test;
-            return double.TryParse(text, out value) ? value : -1d;
+            //MySQL doesn't seem to support NaN, use null instead
+            if (double.TryParse(text, out value))
+                test = value;
+            return test;
+            //return double.TryParse(text, out value) ? value : -1d;
         }
 
         public bool CanConvertFrom(Type type)
