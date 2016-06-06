@@ -16,7 +16,7 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.Volume).Index(3);
             Map(m => m.Price).Index(4);
             // 5 is price/liter
-            Map(m => m.ProductType).Index(6);
+            Map(m => m.ProductType).Index(6).Default(null); // Shouldn't really be allowed to be null, but real world data has it
             Map(m => m.ProductSelection).Index(7);
             Map(m => m.StoreCategory).Index(8);
             Map(m => m.Fylde).Index(9);
@@ -44,7 +44,7 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.Grossist).Index(31);
             Map(m => m.Distributor).Index(32);
             Map(m => m.Emballasjetype).Index(33);
-            Map(m => m.Korktype).Index(34);
+            Map(m => m.Korktype).Index(34).Default(null); // Shouldn't really be allowed to be null, but real world data has it
         }
     }
 }
