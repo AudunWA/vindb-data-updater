@@ -17,9 +17,9 @@ namespace VinmonopoletArchiver.Entities
         public string ProductType { get; set; } // varetype
         public string ProductSelection { get; set; } // produktutvalg
         public string StoreCategory { get; set; } // butikkategori
-        public byte Fylde { get; set; } // fylde TODO: English
+        public byte Fylde { get; set; } // fylde TODO: English (Fullness?)
         public byte Freshness { get; set; } // friskhet
-        public byte Garvestoffer { get; set; } // garvestoffer TODO: English
+        public byte Garvestoffer { get; set; } // garvestoffer TODO: English (Tanins?)
         public byte Bitterness { get; set; } // bitterhet
         public byte Sweetness { get; set; } // sodme
         public string Color { get; set; } // farge
@@ -37,12 +37,12 @@ namespace VinmonopoletArchiver.Entities
         public double Alcohol { get; set; } // alkohol
         public double? Sugar { get; set; } // sukker
         public double? Acid { get; set; } // syre
-        public string Lagringsgrad { get; set; } // lagringsgrad TODO: English
+        public string Lagringsgrad { get; set; } // lagringsgrad TODO: English (StorageType?)
         public string Producer { get; set; } // produsent
-        public string Grossist { get; set; } // grossist TODO?: English
+        public string Grossist { get; set; } // grossist TODO?: English (Wholesaler?)
         public string Distributor { get; set; } // distributor
-        public string Emballasjetype { get; set; } // emballasjetype TODO: English
-        public string Korktype { get; set; } // korktype TODO: English
+        public string Emballasjetype { get; set; } // emballasjetype TODO: English (PackagingType?)
+        public string Korktype { get; set; } // korktype TODO: English (CorkType?)
 
         public DateTime TimeAcquired { get; set; } // Not used directly in DB
 
