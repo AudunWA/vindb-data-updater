@@ -25,5 +25,10 @@ namespace VinmonopoletArchiver.Entities
             OldValue = oldValue;
             NewValue = newValue;
         }
+
+        public override string ToString()
+        {
+            return $"ProductID: {ProductID}, ChangedField: {ChangedField}, OldValue: {OldValue}, NewValue: {NewValue}";
+        }
     }
 }
