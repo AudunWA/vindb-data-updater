@@ -20,20 +20,58 @@ namespace VinmonopoletArchiver
 {
     public class Program
     {
+        public static CultureInfo CultureInfo = CultureInfo.GetCultureInfo("nb-NO");
+        public static Encoding CurrentEncoding = Encoding.GetEncoding(CultureInfo.TextInfo.ANSICodePage);
         private const string PRODUCTS_URL = "http://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv";
         private const string STORES_URL = "http://www.vinmonopolet.no/medias/sys_master/locations/locations/h3c/h4a/8834253946910.csv";
 
         private static void Main(string[] args)
         {
+            string command;
+
+            do
+            {
+                command = Console.ReadLine();
+                string[] commandParameters = command.Split(' ');
+                switch (commandParameters[0])
+                {
+                    case "insert":
+                    {
+                        string fileName = commandParameters[1];
+                        Dictionary<long, Product> products = GetProducts(fileName);
+                        DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
+                        StartImport(products, time);
+                        break;
+                    }
+                    case "download":
+                        {
+                            DownloadLatestCSV();
+                            break;
+                        }
+
+                    case "insertall":
+                    {
+                            string[] orderedFiles = Directory.GetFiles("data").Where(f => f.Contains("produkter")).OrderBy(s => s).ToArray();
+                            foreach (string file in orderedFiles)
+                            {
+                                Dictionary<long, Product> products = GetProducts(file.Substring(5));
+                                DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
+                                StartImport(products, time);
+                            }
+                            break;
+                    }
+                    default:
+                        Console.WriteLine("Invalid command: " + commandParameters[0]);
+                        break;
+                }
+            } while (command != "exit");
+        }
+
+        private static void DownloadLatestCSV()
+        {
             // Required to send HTTP requests to vinmonopolet.no
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
 
-            //foreach (string file in Directory.GetFiles("data"))
-            //{
-            //    if (file.Contains("produkter"))
-            //        InsertFileIntoDb(file.Substring(5));
-            //}
-            //return;
             Directory.CreateDirectory("data");
             using (WebClient client = new WebClient())
             {
@@ -42,17 +80,13 @@ namespace VinmonopoletArchiver
                 if (products.Count > 0)
                 {
                     DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-
-                    // Insert these products into database
-                    //InsertProductsIntoDb(GetProducts(productsBytes));
-                    StartImport(products, time);
                     File.WriteAllBytes("data\\" + "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv", productsBytes);
-                    //File.WriteAllBytes("data\\" + (GetFileName(client) ?? "produkter" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv"), productsBytes);
+                    Console.WriteLine("Successfully downloaded " + "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv");
                 }
 
                 byte[] storesBytes = client.DownloadData(STORES_URL);
                 File.WriteAllBytes("data\\" + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv", storesBytes);
-                //File.WriteAllBytes("data\\" + (GetFileName(client) ?? "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv"), storesBytes);
+                Console.WriteLine("Successfully downloaded " + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv");
             }
         }
 
@@ -69,7 +103,7 @@ namespace VinmonopoletArchiver
         {
             using (FileStream fileStream = new FileStream($"data\\{fileName}", FileMode.Open))
             {
-                using (TextReader textReader = new StreamReader(fileStream, Encoding.UTF7))
+                using (TextReader textReader = new StreamReader(fileStream, CurrentEncoding))
                 {
                     using (CsvReader csvReader = new CsvReader(textReader))
                     {
@@ -85,7 +119,7 @@ namespace VinmonopoletArchiver
         {
             using (MemoryStream stream = new MemoryStream(data))
             {
-                using (TextReader textReader = new StreamReader(stream, Encoding.UTF7))
+                using (TextReader textReader = new StreamReader(stream, CurrentEncoding))
                 {
                     using (CsvReader csvReader = new CsvReader(textReader))
                     {
@@ -115,7 +149,7 @@ namespace VinmonopoletArchiver
             }
 
             // Process and insert all products etc
-            ProcessProducts(products);
+            ProcessProducts(products, changeID);
 
             // Mark the change as completed
             SetChangeEndTime(changeID);
@@ -177,7 +211,7 @@ namespace VinmonopoletArchiver
             return products.Where(p => !existingIDs.Contains(p.ID));
         }
 
-        private static void ProcessProducts(IDictionary<long, Product> products)
+        private static void ProcessProducts(IDictionary<long, Product> products, int changeID)
         {
             // TODO: Redo in following way:
             // 1. Retrieve and map all products from db
@@ -187,6 +221,7 @@ namespace VinmonopoletArchiver
             // 4. For existing products, INSERT into product_change
             Dictionary<long, Product> databaseProducts = ProductFactory.FetchAllProducts();
             List<ProductChange> productChanges = new List<ProductChange>();
+            DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
 
             foreach (Product dbProduct in databaseProducts.Values)
             {
@@ -202,9 +237,11 @@ namespace VinmonopoletArchiver
                     }
                     else
                     {
-                        // Product is identical, remove from database insert dictionary
-                        products.Remove(dbProduct.ID);
+                        //// Product is identical, remove from database insert dictionary
+                        //products.Remove(dbProduct.ID);
                     }
+                    // Set first_seen to existing first_seen
+                    csvProduct.FirstSeen = dbProduct.FirstSeen;
                 }
                 else
                 {
@@ -213,6 +250,7 @@ namespace VinmonopoletArchiver
             }
 
             InsertProductsIntoDb(products);
+            InsertChangesIntoDB(productChanges, changeID);
 
             //List<Product> newProducts = GetNewProducts(products).ToList();
             //int insertCount = InsertProductsIntoDb(newProducts);
@@ -228,23 +266,57 @@ namespace VinmonopoletArchiver
 
         }
 
+        private static int InsertChangesIntoDB(IList<ProductChange> productChanges, int changeID)
+        {
+            if (productChanges.Count == 0)
+                return 0;
+            QueryChunk insertQuery = new QueryChunk("INSERT INTO product_change VALUES");
+
+            using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
+            {
+                for (int i = 0; i < productChanges.Count; i++)
+                {
+                    ProductChange change = productChanges[i];
+                    insertQuery.AddQuery(string.Format("(@id{0},@field{0},@changeid{0},@oldvalue{0},@newvalue{0})", i));
+                    insertQuery.AddParameter($"id{i}", change.ProductID);
+                    insertQuery.AddParameter($"field{i}", change.ChangedField);
+                    insertQuery.AddParameter($"changeid{i}", changeID); // TODO: Set as global parameter
+                    insertQuery.AddParameter($"oldvalue{i}", change.OldValue);
+                    insertQuery.AddParameter($"newvalue{i}", change.NewValue);
+                }
+                return insertQuery.Execute(command);
+            }
+        }
+
         private static int InsertProductsIntoDb(IDictionary<long, Product> products)
         {
             QueryChunk insertQuery = new QueryChunk("REPLACE INTO product VALUES");
 
             using (MySqlCommandWrapper command = DatabaseManager.CreateCommand())
             {
+                // Temp hack to let us bypass foreign key checks on REPLACE INTO
+                command.CommandText = "SET FOREIGN_KEY_CHECKS=0";
+                command.ExecuteNonQuery();
+
+                DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
+
                 int i = 0;
                 foreach (Product product in products.Values)
                 {
-                    product.TimeAcquired = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-                    insertQuery.AddQuery(string.Format("(@id{0},@time{0},@time{0},@name{0},@volume{0},@price{0},@type{0},@selection{0},@category{0},@fylde{0},@freshness{0}" +
+                    if (product.FirstSeen == default(DateTime)) // New product, set first seen to now
+                        product.FirstSeen = time;
+
+                    product.LastSeen = time;
+                    product.TimeAcquired = time;
+
+                    insertQuery.AddQuery(string.Format("(@id{0},@firstseen{0},@lastseen{0},@name{0},@volume{0},@price{0},@type{0},@selection{0},@category{0},@fylde{0},@freshness{0}" +
                                                        ",@garvestoffer{0},@bitterness{0},@sweetness{0},@color{0},@smell{0},@taste{0},@fw1{0},@fw2{0},@fw3{0}" +
                                                        ",@country{0},@district{0},@subdistrict{0},@year{0},@rawmaterial{0},@method{0},@alcohol{0},@sugar{0},@acid{0}" +
                                                        ",@lagringsgrad{0},@producer{0},@grossist{0},@distributor{0},@emballasjetype{0},@korktype{0})", i));
 
                     insertQuery.AddParameter($"id{i}", product.ID);
-                    insertQuery.AddParameter($"time{i}", product.TimeAcquired);
+                    insertQuery.AddParameter($"firstseen{i}", product.FirstSeen);
+                    insertQuery.AddParameter($"lastseen{i}", product.LastSeen);
                     insertQuery.AddParameter($"name{i}", product.ProductName);
                     insertQuery.AddParameter($"volume{i}", product.Volume);
                     insertQuery.AddParameter($"price{i}", product.Price);
