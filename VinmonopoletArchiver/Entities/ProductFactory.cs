@@ -36,7 +36,7 @@ namespace VinmonopoletArchiver.Entities
             product.ProductName = (string) row["varenavn"];
             product.Volume = (double) row["volum"];
             product.Price = (double) row["pris"];
-            product.ProductType = (string) row["varetype"];
+            product.ProductType = DatabaseMappingUtil.ConvertFromDBVal<string>(row["varetype"]);
             product.ProductSelection = (string) row["produktutvalg"];
             product.StoreCategory = (string) row["butikkategori"];
             product.Fylde = (byte) row["fylde"];
@@ -64,7 +64,7 @@ namespace VinmonopoletArchiver.Entities
             product.Grossist = (string) row["grossist"];
             product.Distributor = (string) row["distributor"];
             product.Emballasjetype = (string) row["emballasjetype"];
-            product.Korktype = (string) row["korktype"];
+            product.Korktype = DatabaseMappingUtil.ConvertFromDBVal<string>(row["korktype"]);
 
             return product;
         }
