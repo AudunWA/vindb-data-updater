@@ -55,8 +55,102 @@ namespace VinmonopoletArchiver.Entities
         public List<ProductChange> FindChanges(Product otherVersion)
         {
             List<ProductChange> changes = new List<ProductChange>();
-            if (!ProductName.Equals(otherVersion.ProductName))
+            if (!Equals(ProductName, otherVersion.ProductName))
                 changes.Add(new ProductChange(ID, ProductField.ProductName, otherVersion.LastSeen, ProductName, otherVersion.ProductName));
+
+            if (!Equals(Volume, otherVersion.Volume))
+                changes.Add(new ProductChange(ID, ProductField.Volume, otherVersion.LastSeen, Volume.ToString(), otherVersion.Volume.ToString()));
+
+            if (!Equals(Price, otherVersion.Price))
+                changes.Add(new ProductChange(ID, ProductField.Price, otherVersion.LastSeen, Price.ToString(), otherVersion.Price.ToString()));
+
+            if (!Equals(ProductType, otherVersion.ProductType))
+                changes.Add(new ProductChange(ID, ProductField.ProductType, otherVersion.LastSeen, ProductType, otherVersion.ProductType));
+
+            if (!Equals(ProductSelection, otherVersion.ProductSelection))
+                changes.Add(new ProductChange(ID, ProductField.ProductSelection, otherVersion.LastSeen, ProductSelection, otherVersion.ProductSelection));
+
+            if (!Equals(StoreCategory, otherVersion.StoreCategory))
+                changes.Add(new ProductChange(ID, ProductField.StoreCategory, otherVersion.LastSeen, StoreCategory, otherVersion.StoreCategory));
+
+            if (!Equals(Fylde, otherVersion.Fylde))
+                changes.Add(new ProductChange(ID, ProductField.Fylde, otherVersion.LastSeen, Fylde.ToString(), otherVersion.Fylde.ToString()));
+
+            if (!Equals(Freshness, otherVersion.Freshness))
+                changes.Add(new ProductChange(ID, ProductField.Freshness, otherVersion.LastSeen, Freshness.ToString(), otherVersion.Freshness.ToString()));
+
+            if (!Equals(Garvestoffer, otherVersion.Garvestoffer))
+                changes.Add(new ProductChange(ID, ProductField.Garvestoffer, otherVersion.LastSeen, Garvestoffer.ToString(), otherVersion.Garvestoffer.ToString()));
+
+            if (!Equals(Bitterness, otherVersion.Bitterness))
+                changes.Add(new ProductChange(ID, ProductField.Bitterness, otherVersion.LastSeen, Bitterness.ToString(), otherVersion.Bitterness.ToString()));
+
+            if (!Equals(Sweetness, otherVersion.Sweetness))
+                changes.Add(new ProductChange(ID, ProductField.Sweetness, otherVersion.LastSeen, Sweetness.ToString(), otherVersion.Sweetness.ToString()));
+
+            if (!Equals(Color, otherVersion.Color))
+                changes.Add(new ProductChange(ID, ProductField.Color, otherVersion.LastSeen, Color, otherVersion.Color));
+
+            if (!Equals(Smell, otherVersion.Smell))
+                changes.Add(new ProductChange(ID, ProductField.Smell, otherVersion.LastSeen, Smell, otherVersion.Smell));
+
+            if (!Equals(Taste, otherVersion.Taste))
+                changes.Add(new ProductChange(ID, ProductField.Taste, otherVersion.LastSeen, Taste, otherVersion.Taste));
+
+            if (!Equals(FitsWith1,otherVersion.FitsWith1))
+                changes.Add(new ProductChange(ID, ProductField.FitsWith1, otherVersion.LastSeen, FitsWith1, otherVersion.FitsWith1));
+
+            if (!Equals(FitsWith2, otherVersion.FitsWith2))
+                changes.Add(new ProductChange(ID, ProductField.FitsWith2, otherVersion.LastSeen, FitsWith2, otherVersion.FitsWith2));
+
+            if (!Equals(FitsWith3, otherVersion.FitsWith3))
+                changes.Add(new ProductChange(ID, ProductField.FitsWith3, otherVersion.LastSeen, FitsWith3, otherVersion.FitsWith3));
+
+            if (!Equals(Country, otherVersion.Country))
+                changes.Add(new ProductChange(ID, ProductField.Country, otherVersion.LastSeen, Country, otherVersion.Country));
+
+            if (!Equals(District, otherVersion.District))
+                changes.Add(new ProductChange(ID, ProductField.District, otherVersion.LastSeen, District, otherVersion.District));
+
+            if (!Equals(Subdistrict, otherVersion.Subdistrict))
+                changes.Add(new ProductChange(ID, ProductField.Subdistrict, otherVersion.LastSeen, Subdistrict, otherVersion.Subdistrict));
+
+            if (!Equals(Year, otherVersion.Year))
+                changes.Add(new ProductChange(ID, ProductField.Year, otherVersion.LastSeen, Year.ToString(), otherVersion.Year.ToString()));
+
+            if (!Equals(RawMaterial, otherVersion.RawMaterial))
+                changes.Add(new ProductChange(ID, ProductField.RawMaterial, otherVersion.LastSeen, RawMaterial, otherVersion.RawMaterial));
+
+            if (!Equals(Method, otherVersion.Method))
+                changes.Add(new ProductChange(ID, ProductField.Method, otherVersion.LastSeen, Method, otherVersion.Method));
+
+            if (!Equals(Alcohol, otherVersion.Alcohol))
+                changes.Add(new ProductChange(ID, ProductField.Alcohol, otherVersion.LastSeen, Alcohol.ToString(), otherVersion.Alcohol.ToString()));
+
+            if (!Equals(Sugar, otherVersion.Sugar))
+                changes.Add(new ProductChange(ID, ProductField.Sugar, otherVersion.LastSeen, Sugar.ToString(), otherVersion.Sugar.ToString()));
+
+            if (!Equals(Acid, otherVersion.Acid))
+                changes.Add(new ProductChange(ID, ProductField.Acid, otherVersion.LastSeen, Acid.ToString(), otherVersion.Acid.ToString()));
+
+            if (!Equals(Lagringsgrad, otherVersion.Lagringsgrad))
+                changes.Add(new ProductChange(ID, ProductField.Lagringsgrad, otherVersion.LastSeen, Lagringsgrad, otherVersion.Lagringsgrad));
+
+            if (!Equals(Producer, otherVersion.Producer))
+                changes.Add(new ProductChange(ID, ProductField.Producer, otherVersion.LastSeen, Producer, otherVersion.Producer));
+
+            if (!Equals(Grossist, otherVersion.Grossist))
+                changes.Add(new ProductChange(ID, ProductField.Grossist, otherVersion.LastSeen, Grossist, otherVersion.Grossist));
+
+            if (!Equals(Distributor, otherVersion.Distributor))
+                changes.Add(new ProductChange(ID, ProductField.Distributor, otherVersion.LastSeen, Distributor, otherVersion.Distributor));
+
+            if (!Equals(Emballasjetype, otherVersion.Emballasjetype))
+                changes.Add(new ProductChange(ID, ProductField.Emballasjetype, otherVersion.LastSeen, Emballasjetype, otherVersion.Emballasjetype));
+
+            if (!Equals(Korktype, otherVersion.Korktype))
+                changes.Add(new ProductChange(ID, ProductField.Korktype, otherVersion.LastSeen, Korktype, otherVersion.Korktype));
+
             return changes;
         } 
     }
