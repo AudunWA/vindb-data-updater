@@ -27,6 +27,19 @@ namespace VinmonopoletArchiver
 
         private static void Main(string[] args)
         {
+            if (args.Length > 0 && args[0] == "-s")
+            {
+                Dictionary <long, Product> products = DownloadLatestCSV();
+                if (products == null)
+                {
+                    // TODO: Log
+                    return;
+                }
+
+                StartImport(products);
+                return;
+            }
+
             string command;
 
             do
@@ -39,8 +52,7 @@ namespace VinmonopoletArchiver
                     {
                         string fileName = commandParameters[1];
                         Dictionary<long, Product> products = GetProducts(fileName);
-                        DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-                        StartImport(products, time);
+                        StartImport(products);
                         break;
                     }
                     case "download":
@@ -55,8 +67,7 @@ namespace VinmonopoletArchiver
                             foreach (string file in orderedFiles)
                             {
                                 Dictionary<long, Product> products = GetProducts(file.Substring(5));
-                                DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-                                StartImport(products, time);
+                                StartImport(products);
                             }
                             break;
                     }
@@ -67,7 +78,7 @@ namespace VinmonopoletArchiver
             } while (command != "exit");
         }
 
-        private static void DownloadLatestCSV()
+        private static Dictionary<long, Product> DownloadLatestCSV()
         {
             // Required to send HTTP requests to vinmonopolet.no
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
@@ -77,16 +88,25 @@ namespace VinmonopoletArchiver
             {
                 byte[] productsBytes = client.DownloadData(PRODUCTS_URL);
                 Dictionary<long, Product> products = GetProducts(productsBytes);
+
+                string fileName;
                 if (products.Count > 0)
                 {
                     DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-                    File.WriteAllBytes("data\\" + "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv", productsBytes);
-                    Console.WriteLine("Successfully downloaded " + "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv");
+                    fileName = "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv";
                 }
+                else
+                {
+                    fileName = "produkter" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".corrupt.csv";
+                }
+
+                File.WriteAllBytes("data\\" + fileName, productsBytes);
+                Console.WriteLine("Successfully downloaded " + fileName);
 
                 byte[] storesBytes = client.DownloadData(STORES_URL);
                 File.WriteAllBytes("data\\" + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv", storesBytes);
                 Console.WriteLine("Successfully downloaded " + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv");
+                return products.Count > 0 ? products : null;
             }
         }
 
@@ -131,8 +151,10 @@ namespace VinmonopoletArchiver
             }
         }
 
-        private static void StartImport(IDictionary<long, Product> products, DateTime time)
+        private static void StartImport(IDictionary<long, Product> products)
         {
+            DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
+
             // First check if already imported
             if (CheckChangeRegistered(time))
             {
