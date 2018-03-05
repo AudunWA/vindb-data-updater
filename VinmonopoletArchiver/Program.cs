@@ -22,21 +22,26 @@ namespace VinmonopoletArchiver
     {
         public static CultureInfo CultureInfo = CultureInfo.GetCultureInfo("nb-NO");
         public static Encoding CurrentEncoding = Encoding.GetEncoding(CultureInfo.TextInfo.ANSICodePage);
-        private const string PRODUCTS_URL = "http://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv";
-        private const string STORES_URL = "http://www.vinmonopolet.no/medias/sys_master/locations/locations/h3c/h4a/8834253946910.csv";
+
+        private const string PRODUCTS_URL =
+            "https://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv";
+
+        private const string STORES_URL =
+            "https://www.vinmonopolet.no/medias/sys_master/locations/locations/h3c/h4a/8834253946910/8834253946910.csv";
 
         private static void Main(string[] args)
         {
             if (args.Length > 0 && args[0] == "-s")
             {
-                Dictionary <long, Product> products = DownloadLatestCSV();
+                string fileName;
+                Dictionary<long, Product> products = DownloadLatestCSV(out fileName);
                 if (products == null)
                 {
                     // TODO: Log
                     return;
                 }
 
-                StartImport(products);
+                StartImport(products, fileName);
                 return;
             }
 
@@ -52,24 +57,39 @@ namespace VinmonopoletArchiver
                     {
                         string fileName = commandParameters[1];
                         Dictionary<long, Product> products = GetProducts(fileName);
-                        StartImport(products);
+                        StartImport(products, fileName);
                         break;
                     }
                     case "download":
+                    {
+                        string fileName;
+                        DownloadLatestCSV(out fileName);
+                        break;
+                    }
+
+                    case "dlinsert":
+                    {
+                        string fileName;
+                        Dictionary<long, Product> products = DownloadLatestCSV(out fileName);
+                        if (products == null)
                         {
-                            DownloadLatestCSV();
-                            break;
+                            // TODO: Log
+                            return;
                         }
 
+                        StartImport(products, fileName);
+                        break;
+                    }
                     case "insertall":
                     {
-                            string[] orderedFiles = Directory.GetFiles("data").Where(f => f.Contains("produkter")).OrderBy(s => s).ToArray();
-                            foreach (string file in orderedFiles)
-                            {
-                                Dictionary<long, Product> products = GetProducts(file.Substring(5));
-                                StartImport(products);
-                            }
-                            break;
+                        string[] orderedFiles =
+                            Directory.GetFiles("data").Where(f => f.Contains("produkter")).OrderBy(s => s).ToArray();
+                        foreach (string file in orderedFiles)
+                        {
+                            Dictionary<long, Product> products = GetProducts(file.Substring(5));
+                            StartImport(products, file.Substring(5));
+                        }
+                        break;
                     }
                     default:
                         Console.WriteLine("Invalid command: " + commandParameters[0]);
@@ -78,7 +98,7 @@ namespace VinmonopoletArchiver
             } while (command != "exit");
         }
 
-        private static Dictionary<long, Product> DownloadLatestCSV()
+        private static Dictionary<long, Product> DownloadLatestCSV(out string fileName)
         {
             // Required to send HTTP requests to vinmonopolet.no
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
@@ -89,23 +109,25 @@ namespace VinmonopoletArchiver
                 byte[] productsBytes = client.DownloadData(PRODUCTS_URL);
                 Dictionary<long, Product> products = GetProducts(productsBytes);
 
-                string fileName;
-                if (products.Count > 0)
-                {
-                    DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-                    fileName = "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv";
-                }
-                else
-                {
-                    fileName = "produkter" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".corrupt.csv";
-                }
+                //if (products.Count > 0)
+                //{
+                    //DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
+                    //fileName = "produkter" + time.ToString("yyyyMMdd-HHmmss-fff") + ".csv";
+                //}
+                //else
+                //{
+                    //fileName = "produkter" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".corrupt.csv";
+                    fileName = "produkter" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv";
+                //}
 
                 File.WriteAllBytes("data\\" + fileName, productsBytes);
                 Console.WriteLine("Successfully downloaded " + fileName);
 
                 byte[] storesBytes = client.DownloadData(STORES_URL);
-                File.WriteAllBytes("data\\" + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv", storesBytes);
-                Console.WriteLine("Successfully downloaded " + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv");
+                File.WriteAllBytes("data\\" + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".csv",
+                    storesBytes);
+                Console.WriteLine("Successfully downloaded " + "butikker" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") +
+                                  ".csv");
                 return products.Count > 0 ? products : null;
             }
         }
@@ -114,7 +136,10 @@ namespace VinmonopoletArchiver
         private static string GetFileName(WebClient client)
         {
             if (!string.IsNullOrEmpty(client.ResponseHeaders["Content-Disposition"]))
-                return client.ResponseHeaders["Content-Disposition"].Substring(client.ResponseHeaders["Content-Disposition"].IndexOf("filename=", StringComparison.InvariantCulture) + 10).Replace("\"", "");
+                return
+                    client.ResponseHeaders["Content-Disposition"].Substring(
+                        client.ResponseHeaders["Content-Disposition"].IndexOf("filename=",
+                            StringComparison.InvariantCulture) + 10).Replace("\"", "");
 
             return null;
         }
@@ -129,7 +154,7 @@ namespace VinmonopoletArchiver
                     {
                         csvReader.Configuration.Delimiter = ";";
                         csvReader.Configuration.RegisterClassMap<ProductMap>();
-                        return csvReader.GetRecords<Product>().ToDictionary(p => p.ID, p => p);
+                        return csvReader.GetRecords<Product>().Where(p => !double.IsNaN(p.Alcohol)).ToDictionary(p => p.ID, p => p);
                     }
                 }
             }
@@ -137,24 +162,42 @@ namespace VinmonopoletArchiver
 
         private static Dictionary<long, Product> GetProducts(byte[] data)
         {
-            using (MemoryStream stream = new MemoryStream(data))
+            try
             {
-                using (TextReader textReader = new StreamReader(stream, CurrentEncoding))
+                using (MemoryStream stream = new MemoryStream(data))
                 {
-                    using (CsvReader csvReader = new CsvReader(textReader))
+                    using (TextReader textReader = new StreamReader(stream, CurrentEncoding))
                     {
-                        csvReader.Configuration.Delimiter = ";";
-                        csvReader.Configuration.RegisterClassMap<ProductMap>();
-                        return csvReader.GetRecords<Product>().ToDictionary(p => p.ID, p => p);
+                        using (CsvReader csvReader = new CsvReader(textReader))
+                        {
+                            csvReader.Configuration.Delimiter = ";";
+                            csvReader.Configuration.RegisterClassMap<ProductMap>();
+                            return csvReader.GetRecords<Product>().Where(p => !double.IsNaN(p.Alcohol)).ToDictionary(p => p.ID, p => p);
+                        }
                     }
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Parse error: " + e);
+                return new Dictionary<long, Product>();
+            }
         }
 
-        private static void StartImport(IDictionary<long, Product> products)
+        private static void StartImport(IDictionary<long, Product> products, string fileName)
         {
-            DateTime time = products.Values.ElementAt(0).TimeAcquired; // Time only specified for first item
-
+            DateTime time = DateTime.Now; // Time only specified for first item
+            try
+            {
+                time = products.Values.ElementAt(0).TimeAcquired;
+                if(time == default(DateTime)) // Invalid time, some csv files has this issue
+                    time = DateTime.ParseExact(fileName.Replace("produkter", "").Replace(".csv", ""), "yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                time = DateTime.ParseExact(fileName.Replace("produkter", "").Replace(".csv", ""), "yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture);
+            }
+            //DateTime time = DateTime.Now; // Timestamp removed from files
             // First check if already imported
             if (CheckChangeRegistered(time))
             {

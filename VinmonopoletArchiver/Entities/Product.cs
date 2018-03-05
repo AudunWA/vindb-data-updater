@@ -13,7 +13,7 @@ namespace VinmonopoletArchiver.Entities
         public DateTime LastSeen { get; set; } // last_seen
         public string ProductName { get; set; } // varenavn
         public double Volume { get; set; } // volum
-        public double Price { get; set; } // pris
+        public decimal Price { get; set; } // pris
         public string ProductType { get; set; } // varetype
         public string ProductSelection { get; set; } // produktutvalg
         public string StoreCategory { get; set; } // butikkategori

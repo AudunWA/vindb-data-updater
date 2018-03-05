@@ -35,7 +35,7 @@ namespace VinmonopoletArchiver.Entities
             product.LastSeen = (DateTime) row["last_seen"];
             product.ProductName = (string) row["varenavn"];
             product.Volume = (double) row["volum"];
-            product.Price = (double) row["pris"];
+            product.Price = (decimal) row["pris"];
             product.ProductType = DatabaseMappingUtil.ConvertFromDBVal<string>(row["varetype"]);
             product.ProductSelection = (string) row["produktutvalg"];
             product.StoreCategory = (string) row["butikkategori"];

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,8 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.TimeAcquired).Index(0);
             Map(m => m.ID).Index(1);
             Map(m => m.ProductName).Index(2);
-            Map(m => m.Volume).Index(3);
-            Map(m => m.Price).Index(4);
+            Map(m => m.Volume).Index(3).TypeConverterOption(new CultureInfo("no"));
+            Map(m => m.Price).Index(4).TypeConverterOption(new CultureInfo("no"));
             // 5 is price/liter
             Map(m => m.ProductType).Index(6).Default(null); // Shouldn't really be allowed to be null, but real world data has it
             Map(m => m.ProductSelection).Index(7);
@@ -33,10 +34,10 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.Country).Index(20);
             Map(m => m.District).Index(21);
             Map(m => m.Subdistrict).Index(22).Default(null);
-            Map(m => m.Year).Index(23).Default(null);
+            Map(m => m.Year).Index(23).TypeConverter<IntegerOrUnknownConverter>();
             Map(m => m.RawMaterial).Index(24).Default(null);
             Map(m => m.Method).Index(25).Default(null);
-            Map(m => m.Alcohol).Index(26);
+            Map(m => m.Alcohol).Index(26).TypeConverter<DoubleValueOrUnknownConverter>();
             Map(m => m.Sugar).Index(27).TypeConverter<DoubleOrUnknownConverter>();
             Map(m => m.Acid).Index(28).TypeConverter<DoubleOrUnknownConverter>();
             Map(m => m.Lagringsgrad).Index(29).Default(null);
