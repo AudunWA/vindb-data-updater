@@ -14,7 +14,7 @@ namespace VinmonopoletArchiver.Entities.Tests
         [TestMethod()]
         public void FetchAllProductsTest()
         {
-            List<Product> products = ProductFactory.FetchAllProducts();
+            Dictionary<long, Product> products = ProductFactory.FetchAllProducts();
             Assert.AreNotEqual(0, products.Count);
         }
     }

@@ -7,15 +7,15 @@ using CsvHelper.Configuration;
 
 namespace VinmonopoletArchiver.Entities
 {
-    internal sealed class ProductMap : CsvClassMap<Product>
+    internal sealed class ProductMap : ClassMap<Product>
     {
         public ProductMap()
         {
             Map(m => m.TimeAcquired).Index(0);
             Map(m => m.ID).Index(1);
             Map(m => m.ProductName).Index(2);
-            Map(m => m.Volume).Index(3).TypeConverterOption(new CultureInfo("no"));
-            Map(m => m.Price).Index(4).TypeConverterOption(new CultureInfo("no"));
+            Map(m => m.Volume).Index(3).TypeConverterOption.CultureInfo(new CultureInfo("no"));
+            Map(m => m.Price).Index(4).TypeConverterOption.CultureInfo(new CultureInfo("no"));
             // 5 is price/liter
             Map(m => m.ProductType).Index(6).Default(null); // Shouldn't really be allowed to be null, but real world data has it
             Map(m => m.ProductSelection).Index(7);
