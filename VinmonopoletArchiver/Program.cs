@@ -29,8 +29,10 @@ namespace VinmonopoletArchiver
         private const string STORES_URL =
             "https://www.vinmonopolet.no/medias/sys_master/locations/locations/h3c/h4a/8834253946910/8834253946910.csv";
 
-        private static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             if (args.Length > 0 && args[0] == "-s")
             {
                 string fileName;
@@ -152,6 +154,7 @@ namespace VinmonopoletArchiver
                 {
                     using (CsvReader csvReader = new CsvReader(textReader))
                     {
+                        csvReader.Configuration.HeaderValidated = null;
                         csvReader.Configuration.Delimiter = ";";
                         csvReader.Configuration.RegisterClassMap<ProductMap>();
                         return csvReader.GetRecords<Product>().Where(p => !double.IsNaN(p.Alcohol)).ToDictionary(p => p.ID, p => p);
@@ -170,6 +173,7 @@ namespace VinmonopoletArchiver
                     {
                         using (CsvReader csvReader = new CsvReader(textReader))
                         {
+                            csvReader.Configuration.HeaderValidated = null;
                             csvReader.Configuration.Delimiter = ";";
                             csvReader.Configuration.RegisterClassMap<ProductMap>();
                             return csvReader.GetRecords<Product>().Where(p => !double.IsNaN(p.Alcohol)).ToDictionary(p => p.ID, p => p);
