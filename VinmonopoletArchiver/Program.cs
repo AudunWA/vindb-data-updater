@@ -31,14 +31,17 @@ namespace VinmonopoletArchiver
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("Vinmonopolet archiver starting..");
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             if (args.Length > 0 && args[0] == "-s")
             {
+                Console.WriteLine("Starting import...");
                 string fileName;
                 Dictionary<long, Product> products = DownloadLatestCSV(out fileName);
                 if (products == null)
                 {
+                    Console.WriteLine("Didn't find any products..");
                     // TODO: Log
                     return;
                 }

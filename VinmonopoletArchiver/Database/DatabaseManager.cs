@@ -15,11 +15,16 @@ namespace VinmonopoletArchiver.Database
         {
             ConnectionString = new MySqlConnectionStringBuilder
             {
-                Server = "localhost",
+                Server = Environment.GetEnvironmentVariable("DB_HOST"),//"tihlde.org",
                 Port = 3306,
-                UserID = "root",
-                Password = "",
-                Database = "pol",
+                UserID = Environment.GetEnvironmentVariable("DB_USER"),//"audunwar",
+                Password = Environment.GetEnvironmentVariable("DB_PASSWORD"),//"JmkGy/TVEVk/LXT/",
+                Database = Environment.GetEnvironmentVariable("DB_DATABASE"),//"audunwar",
+                //Server = "localhost",
+                //Port = 3306,
+                //UserID = "root",
+                //Password = "",
+                //Database = "pol",
                 ConvertZeroDateTime = true,
             }.GetConnectionString(true);
         }
