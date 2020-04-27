@@ -381,7 +381,7 @@ namespace VinmonopoletArchiver
                     insertQuery.AddQuery(string.Format("(@id{0},@firstseen{0},@lastseen{0},@name{0},@volume{0},@price{0},@type{0},@selection{0},@category{0},@fylde{0},@freshness{0}" +
                                                        ",@garvestoffer{0},@bitterness{0},@sweetness{0},@color{0},@smell{0},@taste{0},@fw1{0},@fw2{0},@fw3{0}" +
                                                        ",@country{0},@district{0},@subdistrict{0},@year{0},@rawmaterial{0},@method{0},@alcohol{0},@sugar{0},@acid{0}" +
-                                                       ",@lagringsgrad{0},@producer{0},@grossist{0},@distributor{0},@emballasjetype{0},@korktype{0})", i));
+                                                       ",@lagringsgrad{0},@producer{0},@grossist{0},@distributor{0},@emballasjetype{0},@korktype{0},@ecologic{0},@biodynamic{0},@fairtrade{0},@environmentSmartPackaging{0},@lowInGluten{0},@kosher{0},@mainGTIN{0},@otherGTINs{0})", i));
 
                     insertQuery.AddParameter($"id{i}", product.ID);
                     insertQuery.AddParameter($"firstseen{i}", product.FirstSeen);
@@ -418,6 +418,14 @@ namespace VinmonopoletArchiver
                     insertQuery.AddParameter($"distributor{i}", product.Distributor);
                     insertQuery.AddParameter($"emballasjetype{i}", product.Emballasjetype);
                     insertQuery.AddParameter($"korktype{i}", product.Korktype);
+                    insertQuery.AddParameter($"ecologic{i}", product.Ecologic);
+                    insertQuery.AddParameter($"biodynamic{i}", product.Biodynamic);
+                    insertQuery.AddParameter($"fairtrade{i}", product.Fairtrade);
+                    insertQuery.AddParameter($"environmentSmartPackaging{i}", product.EnvironmentSmartPackaging);
+                    insertQuery.AddParameter($"lowInGluten{i}", product.LowInGluten);
+                    insertQuery.AddParameter($"kosher{i}", product.Kosher);
+                    insertQuery.AddParameter($"mainGTIN{i}", product.MainGTIN);
+                    insertQuery.AddParameter($"otherGTINs{i}", product.OtherGTINs);
                     i++;
                 }
 

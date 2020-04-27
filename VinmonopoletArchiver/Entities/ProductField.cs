@@ -41,6 +41,14 @@ namespace VinmonopoletArchiver.Entities
         Grossist, // grossist TODO?: English
         Distributor, // distributor
         Emballasjetype, // emballasjetype TODO: English
-        Korktype // korktype TODO: English
+        Korktype, // korktype TODO: English
+        Ecologic,
+        Biodynamic,
+        Fairtrade,
+        EnvironmentSmartPackaging,
+        LowInGluten,
+        Kosher,
+        MainGTIN,
+        OtherGTINs,
     }
 }

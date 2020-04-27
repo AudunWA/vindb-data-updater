@@ -38,7 +38,7 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.RawMaterial).Index(24).Default(null);
             Map(m => m.Method).Index(25).Default(null);
             Map(m => m.Alcohol).Index(26).TypeConverter<DoubleValueOrUnknownConverter>();
-            Map(m => m.Sugar).Index(27).TypeConverter<DoubleOrUnknownConverter>();
+            Map(m => m.Sugar).Index(27).Default(null);
             Map(m => m.Acid).Index(28).TypeConverter<DoubleOrUnknownConverter>();
             Map(m => m.Lagringsgrad).Index(29).Default(null);
             Map(m => m.Producer).Index(30).Default(null);
@@ -46,6 +46,15 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.Distributor).Index(32);
             Map(m => m.Emballasjetype).Index(33);
             Map(m => m.Korktype).Index(34).Default(null); // Shouldn't really be allowed to be null, but real world data has it
+            Map(m => m.ProductUrl).Index(35).Default(null);
+            Map(m => m.Ecologic).Index(36).TypeConverter<BooleanOrFalseConverter>();
+            Map(m => m.Biodynamic).Index(37).Default(null);
+            Map(m => m.Fairtrade).Index(38).Default(null);
+            Map(m => m.EnvironmentSmartPackaging).Index(39).Default(null);
+            Map(m => m.LowInGluten).Index(40).Default(null);
+            Map(m => m.Kosher).Index(41).Default(null);
+            Map(m => m.MainGTIN).Index(42).Default(null);
+            Map(m => m.OtherGTINs).Index(43).Default(null);
         }
     }
 }

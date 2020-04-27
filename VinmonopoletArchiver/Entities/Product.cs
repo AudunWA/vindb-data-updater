@@ -35,7 +35,7 @@ namespace VinmonopoletArchiver.Entities
         public string RawMaterial { get; set; } // rastoff
         public string Method { get; set; } // metode
         public double Alcohol { get; set; } // alkohol
-        public double? Sugar { get; set; } // sukker
+        public string Sugar { get; set; } // sukker
         public double? Acid { get; set; } // syre
         public string Lagringsgrad { get; set; } // lagringsgrad TODO: English (StorageType?)
         public string Producer { get; set; } // produsent
@@ -43,6 +43,15 @@ namespace VinmonopoletArchiver.Entities
         public string Distributor { get; set; } // distributor
         public string Emballasjetype { get; set; } // emballasjetype TODO: English (PackagingType?)
         public string Korktype { get; set; } // korktype TODO: English (CorkType?)
+        public string ProductUrl { get; set; }
+        public bool Ecologic { get; set; }
+        public bool Biodynamic { get; set; }
+        public bool Fairtrade { get; set; }
+        public bool EnvironmentSmartPackaging { get; set; }
+        public bool LowInGluten { get; set; }
+        public bool Kosher { get; set; }
+        public string MainGTIN { get; set; }
+        public string OtherGTINs { get; set; }
 
         public DateTime TimeAcquired { get; set; } // Not used directly in DB
 
@@ -128,7 +137,7 @@ namespace VinmonopoletArchiver.Entities
                 changes.Add(new ProductChange(ID, ProductField.Alcohol, otherVersion.LastSeen, Alcohol.ToString(), otherVersion.Alcohol.ToString()));
 
             if (!Equals(Sugar, otherVersion.Sugar))
-                changes.Add(new ProductChange(ID, ProductField.Sugar, otherVersion.LastSeen, Sugar.ToString(), otherVersion.Sugar.ToString()));
+                changes.Add(new ProductChange(ID, ProductField.Sugar, otherVersion.LastSeen, Sugar, otherVersion.Sugar));
 
             if (!Equals(Acid, otherVersion.Acid))
                 changes.Add(new ProductChange(ID, ProductField.Acid, otherVersion.LastSeen, Acid.ToString(), otherVersion.Acid.ToString()));
@@ -150,6 +159,30 @@ namespace VinmonopoletArchiver.Entities
 
             if (!Equals(Korktype, otherVersion.Korktype))
                 changes.Add(new ProductChange(ID, ProductField.Korktype, otherVersion.LastSeen, Korktype, otherVersion.Korktype));
+
+            if (!Equals(Ecologic, otherVersion.Ecologic))
+                changes.Add(new ProductChange(ID, ProductField.Ecologic, otherVersion.LastSeen, Ecologic.ToString(), otherVersion.Ecologic.ToString()));
+
+            if (!Equals(Biodynamic, otherVersion.Biodynamic))
+                changes.Add(new ProductChange(ID, ProductField.Biodynamic, otherVersion.LastSeen, Biodynamic.ToString(), otherVersion.Biodynamic.ToString()));
+
+            if (!Equals(Fairtrade, otherVersion.Fairtrade))
+                changes.Add(new ProductChange(ID, ProductField.Fairtrade, otherVersion.LastSeen, Fairtrade.ToString(), otherVersion.Fairtrade.ToString()));
+
+            if (!Equals(EnvironmentSmartPackaging, otherVersion.EnvironmentSmartPackaging))
+                changes.Add(new ProductChange(ID, ProductField.EnvironmentSmartPackaging, otherVersion.LastSeen, EnvironmentSmartPackaging.ToString(), otherVersion.EnvironmentSmartPackaging.ToString()));
+
+            if (!Equals(LowInGluten, otherVersion.LowInGluten))
+                changes.Add(new ProductChange(ID, ProductField.LowInGluten, otherVersion.LastSeen, LowInGluten.ToString(), otherVersion.LowInGluten.ToString()));
+
+            if (!Equals(Kosher, otherVersion.Kosher))
+                changes.Add(new ProductChange(ID, ProductField.Kosher, otherVersion.LastSeen, Kosher.ToString(), otherVersion.Kosher.ToString()));
+
+            if (!Equals(MainGTIN, otherVersion.MainGTIN))
+                changes.Add(new ProductChange(ID, ProductField.MainGTIN, otherVersion.LastSeen, MainGTIN, otherVersion.MainGTIN));
+
+            if (!Equals(OtherGTINs, otherVersion.OtherGTINs))
+                changes.Add(new ProductChange(ID, ProductField.OtherGTINs, otherVersion.LastSeen, OtherGTINs, otherVersion.OtherGTINs));
 
             return changes;
         } 

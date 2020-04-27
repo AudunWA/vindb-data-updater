@@ -26,6 +26,7 @@ namespace VinmonopoletArchiver.Database
         {
             _connection = connection;
             _command = connection.CreateCommand();
+            _command.CommandTimeout = 480;
         }
 
         /// <summary>

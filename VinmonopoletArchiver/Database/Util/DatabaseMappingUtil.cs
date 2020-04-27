@@ -13,7 +13,7 @@ namespace VinmonopoletArchiver.Database.Util
         {
             if (obj == null || obj == DBNull.Value)
             {
-                return default(T); // returns the default value for the type
+                return default; // returns the default value for the type
             }
             else
             {
