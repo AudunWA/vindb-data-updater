@@ -105,9 +105,6 @@ namespace VinmonopoletArchiver
 
         private static Dictionary<long, Product> DownloadLatestCSV(out string fileName)
         {
-            // Required to send HTTP requests to vinmonopolet.no
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
-
             Directory.CreateDirectory("data");
             using (WebClient client = new WebClient())
             {
