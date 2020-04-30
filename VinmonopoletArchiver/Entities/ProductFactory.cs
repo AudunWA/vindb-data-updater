@@ -54,7 +54,7 @@ namespace VinmonopoletArchiver.Entities
                 Country = (string) row["land"],
                 District = (string) row["distrikt"],
                 Subdistrict = DatabaseMappingUtil.ConvertFromDBVal<string>(row["underdistrikt"]),
-                Year = DatabaseMappingUtil.ConvertFromDBValNullable<short>(row["argang"]),
+                Year = DatabaseMappingUtil.ConvertFromDBValNullable<int>(row["argang"]),
                 RawMaterial = DatabaseMappingUtil.ConvertFromDBVal<string>(row["rastoff"]),
                 Method = DatabaseMappingUtil.ConvertFromDBVal<string>(row["metode"]),
                 Alcohol = (double) row["alkohol"],
