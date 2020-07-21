@@ -39,7 +39,7 @@ namespace VinmonopoletArchiver.Entities
             Map(m => m.Method).Index(25).Default(null);
             Map(m => m.Alcohol).Index(26).TypeConverter<DoubleValueOrUnknownConverter>();
             Map(m => m.Sugar).Index(27).Default(null);
-            Map(m => m.Acid).Index(28).TypeConverter<DoubleOrUnknownConverter>();
+            Map(m => m.Acid).Index(28).TypeConverter<AcidConverter>();
             Map(m => m.Lagringsgrad).Index(29).Default(null);
             Map(m => m.Producer).Index(30).Default(null);
             Map(m => m.Grossist).Index(31);

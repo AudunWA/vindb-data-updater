@@ -21,7 +21,7 @@ namespace VinmonopoletArchiver
     public class Program
     {
         public static CultureInfo CultureInfo = CultureInfo.GetCultureInfo("nb-NO");
-        public static Encoding CurrentEncoding = Encoding.GetEncoding(CultureInfo.TextInfo.ANSICodePage);
+        private static readonly Encoding CurrentEncoding = Encoding.GetEncoding("ISO-8859-1");
 
         private const string PRODUCTS_URL =
             "https://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv";
@@ -150,10 +150,12 @@ namespace VinmonopoletArchiver
         {
             using (FileStream fileStream = new FileStream($"data\\{fileName}", FileMode.Open))
             {
-                using (TextReader textReader = new StreamReader(fileStream, CurrentEncoding))
+                using (TextReader textReader = new StreamReader(fileStream))
                 {
                     using (CsvReader csvReader = new CsvReader(textReader))
                     {
+                        csvReader.Configuration.Encoding = CurrentEncoding;
+                        csvReader.Configuration.CultureInfo = CultureInfo;
                         csvReader.Configuration.HeaderValidated = null;
                         csvReader.Configuration.Delimiter = ";";
                         csvReader.Configuration.RegisterClassMap<ProductMap>();
@@ -169,10 +171,12 @@ namespace VinmonopoletArchiver
             {
                 using (MemoryStream stream = new MemoryStream(data))
                 {
-                    using (TextReader textReader = new StreamReader(stream, CurrentEncoding))
+                    using (TextReader textReader = new StreamReader(stream))
                     {
                         using (CsvReader csvReader = new CsvReader(textReader))
                         {
+                            csvReader.Configuration.Encoding = CurrentEncoding;
+                            csvReader.Configuration.CultureInfo = CultureInfo;
                             csvReader.Configuration.HeaderValidated = null;
                             csvReader.Configuration.Delimiter = ";";
                             csvReader.Configuration.RegisterClassMap<ProductMap>();
